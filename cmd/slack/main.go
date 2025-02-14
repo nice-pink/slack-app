@@ -73,27 +73,6 @@ func SendMsg(header, text, color, channelId string, client *slack.Client) error 
 }
 
 func GetBlock(header, text string, client *slack.Client) ([]byte, error) {
-	// prefix = "🍀 *Success!*"
-	//     if "{{inputs.parameters.did-fail}}" == "true":
-	//       prefix = "💥 *Failed!*"
-
-	//     url = os.getenv('SLACK_WEBHOOK')
-	//     headline = prefix + " *{{inputs.parameters.app-name}}*."
-	//     info="""{{inputs.parameters.info}}"""
-	//     block_text = "*info:* _" + info + "_\n*workflow:* _{{workflow.name}}_\n*status:* _{{workflow.status}}_\n"
-	//     attachment = { "color": color,
-	//             "blocks": [
-	//                 {"type": "section",
-	//                 "text": {"text": block_text,
-	//                           "type": "mrkdwn"}}
-	//             ]}
-	//     body = {
-	//         "text": headline,
-	//         "attachments": [
-	//             attachment
-	//         ]
-	//       }
-
 	var headerSection *slack.SectionBlock
 	if header != "" {
 		headerObj := slack.NewTextBlockObject("mrkdwn", header, false, false)
