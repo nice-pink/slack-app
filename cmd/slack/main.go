@@ -16,6 +16,7 @@ func main() {
 	color := flag.String("color", "", "Color.")
 	channelId := flag.String("channelId", "", "Channel ID.")
 	file := flag.String("file", "", "Filepath.")
+	folder := flag.String("folder", "", "Filepath.")
 	fileTitle := flag.String("fileTitle", "", "File title.")
 	flag.Parse()
 
@@ -30,6 +31,13 @@ func main() {
 	if *file != "" {
 		err := SendFile(*file, *fileTitle, *channelId, client)
 		if err != nil {
+			os.Exit(2)
+		}
+	}
+
+	if *folder != "" {
+		errs := SendFiles(*folder, *fileTitle, *channelId, client)
+		if len(errs) > 0 {
 			os.Exit(2)
 		}
 	}
@@ -123,4 +131,23 @@ func SendFile(filepath, title, channel string, client *slack.Client) error {
 	}
 	log.Info("Uploaded", file.ID, file.Title)
 	return nil
+}
+
+func SendFiles(folder, title, channel string, client *slack.Client) []error {
+	files, err := os.ReadDir(folder)
+	if err != nil {
+		return []error{err}
+	}
+
+	errs := []error{}
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+		err := SendFile(path.Join(folder, file.Name()), file.Name(), channel, client)
+		if err != nil {
+			errs = append(errs, err)
+		}
+	}
+	return errs
 }
