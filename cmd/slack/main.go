@@ -18,23 +18,23 @@ func main() {
 	fileTitle := flag.String("fileTitle", "", "File title.")
 	flag.Parse()
 
-	client := send.GetClient()
+	client := send.NewClient()
 	if *header != "" || *text != "" {
-		err := send.SendMsg(*header, *text, *color, *channelId, client)
+		err := client.SendMsg(*header, *text, *color, *channelId)
 		if err != nil {
 			os.Exit(2)
 		}
 	}
 
 	if *file != "" {
-		err := send.SendFile(*file, *fileTitle, *channelId, client)
+		err := client.SendFile(*file, *fileTitle, *channelId)
 		if err != nil {
 			os.Exit(2)
 		}
 	}
 
 	if *folder != "" {
-		errs := send.SendFiles(*folder, *fileTitle, *channelId, client)
+		errs := client.SendFiles(*folder, *fileTitle, *channelId)
 		if len(errs) > 0 {
 			os.Exit(2)
 		}

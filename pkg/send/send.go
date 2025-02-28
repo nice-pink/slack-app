@@ -9,12 +9,16 @@ import (
 	"github.com/slack-go/slack"
 )
 
-func GetClient() *slack.Client {
-	token := os.Getenv("SLACK_TOKEN")
-	return slack.New(token)
+type Client struct {
+	slackClient *slack.Client
 }
 
-func SendMsg(header, text, color, channelId string, client *slack.Client) error {
+func NewClient() *Client {
+	token := os.Getenv("SLACK_TOKEN")
+	return &Client{slackClient: slack.New(token)}
+}
+
+func (c *Client) SendMsg(header, text, color, channelId string) error {
 	attachment := slack.Attachment{
 		Text: text,
 		// Fields: []slack.AttachmentField{
@@ -28,7 +32,7 @@ func SendMsg(header, text, color, channelId string, client *slack.Client) error 
 		attachment.Color = color
 	}
 
-	channel, ts, err := client.PostMessage(
+	channel, ts, err := c.slackClient.PostMessage(
 		channelId,
 		slack.MsgOptionText(header, false),
 		slack.MsgOptionAttachments(attachment),
@@ -43,7 +47,7 @@ func SendMsg(header, text, color, channelId string, client *slack.Client) error 
 	return nil
 }
 
-func GetBlock(header, text string, client *slack.Client) ([]byte, error) {
+func (c *Client) GetBlock(header, text string) ([]byte, error) {
 	var headerSection *slack.SectionBlock
 	if header != "" {
 		headerObj := slack.NewTextBlockObject("mrkdwn", header, false, false)
@@ -70,7 +74,7 @@ func GetBlock(header, text string, client *slack.Client) ([]byte, error) {
 	return body, nil
 }
 
-func SendFile(filepath, title, channel string, client *slack.Client) error {
+func (c *Client) SendFile(filepath, title, channel string) error {
 	log.Info("Send file", filepath)
 	filename := path.Base(filepath)
 
@@ -87,7 +91,7 @@ func SendFile(filepath, title, channel string, client *slack.Client) error {
 		Filename: filename,
 		Channel:  channel,
 	}
-	file, err := client.UploadFileV2(params)
+	file, err := c.slackClient.UploadFileV2(params)
 	if err != nil {
 		log.Err(err, "upload file error", filepath)
 		return err
@@ -96,7 +100,7 @@ func SendFile(filepath, title, channel string, client *slack.Client) error {
 	return nil
 }
 
-func SendFiles(folder, title, channel string, client *slack.Client) []error {
+func (c *Client) SendFiles(folder, title, channel string) []error {
 	files, err := os.ReadDir(folder)
 	if err != nil {
 		return []error{err}
@@ -107,7 +111,7 @@ func SendFiles(folder, title, channel string, client *slack.Client) []error {
 		if file.IsDir() {
 			continue
 		}
-		err := SendFile(path.Join(folder, file.Name()), file.Name(), channel, client)
+		err := c.SendFile(path.Join(folder, file.Name()), file.Name(), channel)
 		if err != nil {
 			errs = append(errs, err)
 		}
