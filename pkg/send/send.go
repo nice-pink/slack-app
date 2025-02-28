@@ -18,6 +18,19 @@ func NewClient() *Client {
 	return &Client{slackClient: slack.New(token)}
 }
 
+func (c *Client) SendText(text, channelId string) error {
+	channel, ts, err := c.slackClient.PostMessage(
+		channelId,
+		slack.MsgOptionText(text, false),
+	)
+	if err != nil {
+		log.Err(err, "post message")
+		return err
+	}
+	log.Info(ts, ":: Posted message to", channel)
+	return nil
+}
+
 func (c *Client) SendMsg(header, text, color, channelId string) error {
 	attachment := slack.Attachment{
 		Text: text,
