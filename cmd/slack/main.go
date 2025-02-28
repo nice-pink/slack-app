@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/nice-pink/goutil/pkg/log"
-	"github.com/nice-pink/slack-app/pkg/msg"
+	"github.com/nice-pink/slack-app/pkg/send"
 )
 
 func main() {
@@ -18,23 +18,23 @@ func main() {
 	fileTitle := flag.String("fileTitle", "", "File title.")
 	flag.Parse()
 
-	client := msg.GetClient()
+	client := send.GetClient()
 	if *header != "" || *text != "" {
-		err := msg.SendMsg(*header, *text, *color, *channelId, client)
+		err := send.SendMsg(*header, *text, *color, *channelId, client)
 		if err != nil {
 			os.Exit(2)
 		}
 	}
 
 	if *file != "" {
-		err := msg.SendFile(*file, *fileTitle, *channelId, client)
+		err := send.SendFile(*file, *fileTitle, *channelId, client)
 		if err != nil {
 			os.Exit(2)
 		}
 	}
 
 	if *folder != "" {
-		errs := msg.SendFiles(*folder, *fileTitle, *channelId, client)
+		errs := send.SendFiles(*folder, *fileTitle, *channelId, client)
 		if len(errs) > 0 {
 			os.Exit(2)
 		}
