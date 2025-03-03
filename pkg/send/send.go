@@ -2,6 +2,7 @@ package send
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 	"path"
 
@@ -19,6 +20,10 @@ func NewClient() *Client {
 }
 
 func (c *Client) SendText(text, channelId string) error {
+	if err := c.IsReady(); err != nil {
+		return err
+	}
+
 	channel, ts, err := c.slackClient.PostMessage(
 		channelId,
 		slack.MsgOptionText(text, false),
@@ -32,6 +37,9 @@ func (c *Client) SendText(text, channelId string) error {
 }
 
 func (c *Client) SendMsg(header, text, color, channelId string) error {
+	if err := c.IsReady(); err != nil {
+		return err
+	}
 	attachment := slack.Attachment{
 		Text: text,
 		// Fields: []slack.AttachmentField{
@@ -88,6 +96,10 @@ func (c *Client) GetBlock(header, text string) ([]byte, error) {
 }
 
 func (c *Client) SendFile(filepath, title, channel string) error {
+	if err := c.IsReady(); err != nil {
+		return err
+	}
+
 	log.Info("Send file", filepath)
 	filename := path.Base(filepath)
 
@@ -114,6 +126,10 @@ func (c *Client) SendFile(filepath, title, channel string) error {
 }
 
 func (c *Client) SendFiles(folder, title, channel string) []error {
+	if err := c.IsReady(); err != nil {
+		return []error{err}
+	}
+
 	files, err := os.ReadDir(folder)
 	if err != nil {
 		return []error{err}
@@ -130,4 +146,12 @@ func (c *Client) SendFiles(folder, title, channel string) []error {
 		}
 	}
 	return errs
+}
+
+func (c *Client) IsReady() error {
+	if c.slackClient == nil {
+		log.Error("Slack Client not initialised.")
+		return errors.New("slack client is not ready")
+	}
+	return nil
 }
