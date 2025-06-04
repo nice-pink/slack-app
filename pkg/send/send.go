@@ -10,6 +10,13 @@ import (
 	"github.com/slack-go/slack"
 )
 
+type Msg struct {
+	ChannelId string
+	Text      string
+	Header    string
+	Color     string
+}
+
 type Client struct {
 	slackClient *slack.Client
 }
@@ -36,7 +43,11 @@ func (c *Client) SendText(text, channelId string) error {
 	return nil
 }
 
-func (c *Client) SendMsg(header, text, color, channelId string) error {
+func (c *Client) SendMsg(msg Msg) error {
+	return c.Send(msg.Header, msg.Text, msg.Color, msg.ChannelId)
+}
+
+func (c *Client) Send(header, text, color, channelId string) error {
 	if err := c.IsReady(); err != nil {
 		return err
 	}
