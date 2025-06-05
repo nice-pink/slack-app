@@ -21,8 +21,10 @@ type Client struct {
 	slackClient *slack.Client
 }
 
-func NewClient() *Client {
-	token := os.Getenv("SLACK_TOKEN")
+func NewClient(token string) *Client {
+	if token == "" {
+		token = os.Getenv("SLACK_TOKEN")
+	}
 	return &Client{slackClient: slack.New(token)}
 }
 

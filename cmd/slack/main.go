@@ -16,9 +16,10 @@ func main() {
 	file := flag.String("file", "", "Filepath.")
 	folder := flag.String("folder", "", "Filepath.")
 	fileTitle := flag.String("fileTitle", "", "File title.")
+	token := flag.String("token", "", "Slack token.")
 	flag.Parse()
 
-	client := send.NewClient()
+	client := send.NewClient(*token)
 	if *header != "" || *text != "" {
 		err := client.Send(*header, *text, *color, *channelId)
 		if err != nil {
