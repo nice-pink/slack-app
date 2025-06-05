@@ -20,7 +20,7 @@ func main() {
 
 	client := send.NewClient()
 	if *header != "" || *text != "" {
-		err := client.SendMsg(*header, *text, *color, *channelId)
+		err := client.Send(*header, *text, *color, *channelId)
 		if err != nil {
 			os.Exit(2)
 		}
